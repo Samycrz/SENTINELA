@@ -1,4 +1,17 @@
-*.class
+# Configurações do IntelliJ IDEA
 .idea/
-.iml
-/out
+*.iml
+
+# Arquivos compilados e de saída
+out/
+
+# Arquivos compilados do Java
+*.class
+
+# Logs
+*.log
+
+# Pacotes
+*.jar
+*.war
+*.ear

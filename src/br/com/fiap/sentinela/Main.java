@@ -29,6 +29,11 @@ public class Main {
         sensorCasaReator.atualizarLeitura(20.0);
         imprimirResultadoAnalise(central.analisarLeituras());
 
+        System.out.println("\n CENÁRIO 1.5: Nível de Atenção na Casa do Reator");
+        sensorCasaReator.atualizarLeitura(48.5);
+
+        imprimirResultadoAnalise(central.analisarLeituras());
+
         System.out.println("\n CENÁRIO 2: Pico de Radiação na Casa do Reator");
         sensorCasaReator.atualizarLeitura(75.5);
         imprimirResultadoAnalise(central.analisarLeituras());

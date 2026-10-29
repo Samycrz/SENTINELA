@@ -1,66 +1,56 @@
 package br.com.fiap.sentinela.central;
 
 import br.com.fiap.sentinela.dispositivos.DispositivoMonitoramento;
-import br.com.fiap.sentinela.dispositivos.DronePatrulha;
-import br.com.fiap.sentinela.dispositivos.SensorPerimetral;
-import br.com.fiap.sentinela.dispositivos.SensorRadiacao;
 import br.com.fiap.sentinela.dominio.ZonaRestrita;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CentralMonitoramento {
 
-    private Map<DispositivoMonitoramento, ZonaRestrita> mapeamentoDispositivos;
+    private class AlocacaoMonitoramento {
+        private DispositivoMonitoramento dispositivoAlocado;
+        private ZonaRestrita zonaMonitorada;
+
+        public AlocacaoMonitoramento(DispositivoMonitoramento dispositivoAlocado, ZonaRestrita zonaMonitorada) {
+            this.dispositivoAlocado = dispositivoAlocado;
+            this.zonaMonitorada = zonaMonitorada;
+        }
+
+        public DispositivoMonitoramento getDispositivoAlocado() { return dispositivoAlocado; }
+        public ZonaRestrita getZonaMonitorada() { return zonaMonitorada; }
+    }
+
+    private List<AlocacaoMonitoramento> alocacoesDispositivos;
 
     public CentralMonitoramento() {
-        this.mapeamentoDispositivos = new LinkedHashMap<>();
+        this.alocacoesDispositivos = new ArrayList<>();
     }
 
     public void registrarDispositivo(DispositivoMonitoramento dispositivo, ZonaRestrita zonaMonitorada) {
-        this.mapeamentoDispositivos.put(dispositivo, zonaMonitorada);
+        this.alocacoesDispositivos.add(new AlocacaoMonitoramento(dispositivo, zonaMonitorada));
     }
 
     public List<AlertaSeguranca> analisarLeituras() {
         List<AlertaSeguranca> alertasGerados = new ArrayList<>();
 
-        for (Map.Entry<DispositivoMonitoramento, ZonaRestrita> entrada : mapeamentoDispositivos.entrySet()) {
-            DispositivoMonitoramento dispositivoAtual = entrada.getKey();
-            ZonaRestrita zonaAtual = entrada.getValue();
+        for (AlocacaoMonitoramento alocacao : this.alocacoesDispositivos) {
+            DispositivoMonitoramento dispositivoAtual = alocacao.getDispositivoAlocado();
+            ZonaRestrita zonaAtual = alocacao.getZonaMonitorada();
 
             if (!dispositivoAtual.isEmOperacao()) {
                 continue;
             }
 
-            if (dispositivoAtual instanceof SensorRadiacao) {
-                SensorRadiacao sensorRad = (SensorRadiacao) dispositivoAtual;
+            // A MÁGICA DO POLIMORFISMO ACONTECE AQUI!
+            // Sem instanceof. O dispositivo avalia a si mesmo baseado na sua própria classe filha.
+            AlertaSeguranca alerta = dispositivoAtual.analisarEstado(zonaAtual);
 
-                zonaAtual.registrarLeituraRadiacao(sensorRad.getLeituraAtual());
-                String riscoZona = zonaAtual.classificarRisco();
-
-                if ("CRITICO".equals(riscoZona)) {
-                    alertasGerados.add(new AlertaSeguranca(sensorRad, zonaAtual, "CRITICO", "Nível de radiação (" + sensorRad.getLeituraAtual() + " µSv/h) excedeu o limite seguro."));
-                } else if ("ATENCAO".equals(riscoZona)) {
-                    alertasGerados.add(new AlertaSeguranca(sensorRad, zonaAtual, "ATENCAO", "Nível de radiação atingiu o limite exato de segurança."));
-                }
-
-            } else if (dispositivoAtual instanceof SensorPerimetral) {
-                SensorPerimetral sensorPer = (SensorPerimetral) dispositivoAtual;
-
-                if (sensorPer.isViolacaoDetectada()) {
-                    alertasGerados.add(new AlertaSeguranca(sensorPer, zonaAtual, "ALTO", "Violação física detectada no setor: " + sensorPer.getSetorVigiado()));
-                }
-
-            } else if (dispositivoAtual instanceof DronePatrulha) {
-                DronePatrulha drone = (DronePatrulha) dispositivoAtual;
-
-                if (drone.isAmeacaConfirmadaVisualmente()) {
-                    alertasGerados.add(new AlertaSeguranca(drone, zonaAtual, "CRITICO", "Veículo/Intruso não identificado confirmado via visão computacional."));
-                }
+            if (alerta != null) {
+                alertasGerados.add(alerta);
             }
         }
+
         return alertasGerados;
     }
 }

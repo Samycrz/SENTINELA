@@ -1,5 +1,8 @@
 package br.com.fiap.sentinela.dispositivos;
 
+import br.com.fiap.sentinela.central.AlertaSeguranca;
+import br.com.fiap.sentinela.dominio.ZonaRestrita;
+
 public class SensorPerimetral extends DispositivoMonitoramento {
     private String setorVigiado;
     private boolean violacaoDetectada;
@@ -24,5 +27,14 @@ public class SensorPerimetral extends DispositivoMonitoramento {
 
     public boolean isViolacaoDetectada() {
         return violacaoDetectada;
+    }
+
+    @Override
+    public AlertaSeguranca analisarEstado(ZonaRestrita zonaMonitorada) {
+        if (this.violacaoDetectada) {
+            return new AlertaSeguranca(this, zonaMonitorada, "ALTO",
+                    "Violação física detectada no setor: " + this.setorVigiado);
+        }
+        return null;
     }
 }

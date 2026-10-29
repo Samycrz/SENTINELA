@@ -27,12 +27,14 @@ public class ZonaRestrita {
     }
 
     public String classificarRisco() {
-        if (this.nivelRadiacaoAtual < this.limiteRadiacao) {
-            return "NORMAL";
-        } else if (this.nivelRadiacaoAtual == this.limiteRadiacao) {
+        double limiteAtencao = this.limiteRadiacao * 0.90;
+
+        if (this.nivelRadiacaoAtual > this.limiteRadiacao) {
+            return "CRITICO";
+        } else if (this.nivelRadiacaoAtual >= limiteAtencao) { // Entra aqui se estiver entre 90% e 100%
             return "ATENCAO";
         } else {
-            return "CRITICO";
+            return "NORMAL";
         }
     }
 

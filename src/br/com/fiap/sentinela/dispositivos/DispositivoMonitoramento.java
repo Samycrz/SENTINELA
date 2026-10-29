@@ -1,5 +1,8 @@
 package br.com.fiap.sentinela.dispositivos;
 
+import br.com.fiap.sentinela.central.AlertaSeguranca;
+import br.com.fiap.sentinela.dominio.ZonaRestrita;
+
 public abstract class DispositivoMonitoramento {
     private String codigoIdentificador;
     private String localizacao;
@@ -13,6 +16,8 @@ public abstract class DispositivoMonitoramento {
         this.localizacao = localizacao;
         this.emOperacao = emOperacao;
     }
+
+    public abstract AlertaSeguranca analisarEstado(ZonaRestrita zonaMonitorada);
 
     public String getCodigoIdentificador() {
         return codigoIdentificador;

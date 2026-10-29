@@ -1,5 +1,8 @@
 package br.com.fiap.sentinela.dispositivos;
 
+import br.com.fiap.sentinela.central.AlertaSeguranca;
+import br.com.fiap.sentinela.dominio.ZonaRestrita;
+
 public class DronePatrulha extends DispositivoMonitoramento {
     private String rotaPatrulha;
     private int bateriaPercentual;
@@ -30,5 +33,14 @@ public class DronePatrulha extends DispositivoMonitoramento {
 
     public boolean isAmeacaConfirmadaVisualmente() {
         return ameacaConfirmadaVisualmente;
+    }
+
+    @Override
+    public AlertaSeguranca analisarEstado(ZonaRestrita zonaMonitorada) {
+        if (this.ameacaConfirmadaVisualmente) {
+            return new AlertaSeguranca(this, zonaMonitorada, "CRITICO",
+                    "Veículo/Intruso não identificado confirmado via visão computacional.");
+        }
+        return null;
     }
 }
